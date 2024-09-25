@@ -1,0 +1,170 @@
+
+use 'libs/no.baabnq';
+use 'libs/fast.baabnq';
+
+"--- list node ---
+" _p+0 -> val :: Int
+" _p+1 -> next :: Ptr
+
+put _ListNode::VAL = 0;
+put _ListNode::NEXT = 1;
+
+
+"expected output is:
+"7
+"0
+"8
+
+
+
+"construct list 1
+push 2;
+sub CreateNode;
+pull _l1;
+
+push 4;
+sub CreateNode;
+pull _l1Next;
+
+push 3;
+sub CreateNode;
+pull _l1NextNext;
+
+put _l1Next     -> _l1     + _ListNode::NEXT;
+put _l1NextNext -> _l1Next + _ListNode::NEXT;
+
+"construct list 2
+push 5;
+sub CreateNode;
+pull _l2;
+
+push 6;
+sub CreateNode;
+pull _l2Next;
+
+push 4;
+sub CreateNode;
+pull _l2NextNext;
+
+put _l2Next     -> _l2     + _ListNode::NEXT;
+put _l2NextNext -> _l2Next + _ListNode::NEXT;
+
+
+push _l1;
+push _l2;
+sub AddTwoNumber;
+pull _sum;
+
+
+"output sum
+put __ <- _sum + _ListNode::VAL; print __; put _sum <- _sum + _ListNode::NEXT;
+put __ <- _sum + _ListNode::VAL; print __; put _sum <- _sum + _ListNode::NEXT;
+put __ <- _sum + _ListNode::VAL; print __; put _sum <- _sum + _ListNode::NEXT;
+
+
+
+
+asm 'brk;';
+
+
+"(Val::Int) => (::ListNode)
+"utility
+lab CreateNode;
+    sub Stack::Swap;
+    pull _val;
+    
+    new 2 _pNode;
+    
+    put _val -> _pNode + _ListNode::VAL;
+    put 0    -> _pNode + _ListNode::NEXT;
+    
+    push _pNode;
+    sub Stack::Swap;
+    return;
+   
+     
+"(Node::ListNode) => (ValOrZero::Int)
+"utility
+lab GetValIfNotNullElseZero;
+    sub Stack::Swap;
+    pull _pNode;
+    
+    push 0;
+    sub No::Return ~ _pNode == 0;
+    pull __;
+    
+    put _val <- _pNode + _ListNode::VAL;
+    push _val;
+    sub Stack::Swap;
+    return;
+    
+"(Node::ListNode) => (Node::ListNode)
+"utility
+lab AdvanceNodePtr;
+    sub Stack::Swap;
+    pull _pNode;
+    
+    put _pNode <- _pNode + _ListNode::NEXT;
+    
+    push _pNode;
+    sub Stack::Swap;
+    return;
+        
+        
+
+"(l1::ListNode, l2::ListNode) => (sum::ListNode)
+"actual problem implemetation
+lab AddTwoNumber;
+    sub Stack::Swap; pull _l2;
+    sub Stack::Swap; pull _l1;
+    
+
+    push 0;
+    sub CreateNode;
+    pull _pHook;
+    
+    put _pIter = _pHook;
+    
+    put _carry = 0;
+    
+    
+    lab loop;
+        jump loop::done ~ _l1 | _l2 | _carry == 0;
+        
+        push _l1; sub GetValIfNotNullElseZero; pull _digit1;
+        push _l2; sub GetValIfNotNullElseZero; pull _digit2;
+        
+                
+        put _sum = _digit1 + _digit2 + _carry;
+        
+        push _sum;
+        sub Fast::DivMod10;
+        pull _carry;
+        pull _digit;
+        
+        
+        push _digit;        
+        sub CreateNode;
+        pull _pNextNode;
+        
+        put _pNextNode -> _pIter + _ListNode::NEXT;
+        put _pIter = _pNextNode;
+        
+        push _l1; sub AdvanceNodePtr ~ _l1 > 0; pull _l1;
+        push _l2; sub AdvanceNodePtr ~ _l2 > 0; pull _l2;
+    
+        
+        
+        jump loop;
+    lab loop::done;
+        
+        
+    put _pHead <- _pHook + _ListNode::NEXT;
+    free _pHook;
+    
+    push _pHead;
+    sub Stack::Swap;
+    return;
+
+
+
