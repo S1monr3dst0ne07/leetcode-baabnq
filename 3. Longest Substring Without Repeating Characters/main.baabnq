@@ -1,0 +1,62 @@
+
+use 'libs/stack.baabnq';
+use 'libs/math.baabnq';
+
+
+static 'pwwkew' _sTest;
+
+push _sTest;
+sub LengthOfLongestSubstring;
+pull _len;
+
+"expected to be 3
+print _len;
+
+
+
+
+asm 'brk';
+
+
+"(Super::String) => (Sublen::Int)
+lab LengthOfLongestSubstring;
+    sub Stack::Swap;
+    pull _sSuper;
+    
+    static 128 _pPosWhereCharLastSeenMap;
+    
+    put _start = 0;
+    put _best = 0;
+    
+    put _pos = 1;
+    lab LengthOfLongestSubstring::Loop;
+        put _superChar <- _sSuper;
+        jump LengthOfLongestSubstring::Done ~ _superChar == 0;
+        
+        put _pPosWhereSuperCharLastSeen = _pPosWhereCharLastSeenMap + _superChar;
+        
+        put __ <- _pPosWhereSuperCharLastSeen;
+        push __;
+        push _start;
+        sub Math::Max;
+        pull _start;
+        
+        put _pos -> _pPosWhereSuperCharLastSeen;
+        
+        push _pos - _start;
+        push _best;
+        sub Math::Max;
+        pull _best;
+        
+        put _pos = _pos + 1;
+        put _sSuper = _sSuper + 1;
+    
+        jump LengthOfLongestSubstring::Loop;
+    lab LengthOfLongestSubstring::Done;
+    
+    push _best;
+    sub Stack::Swap;
+    return;
+    
+    
+
