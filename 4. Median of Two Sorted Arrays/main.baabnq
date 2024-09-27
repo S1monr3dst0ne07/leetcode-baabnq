@@ -1,0 +1,89 @@
+
+use 'libs/chunk.baabnq';
+
+
+
+new 2 _pNums1;
+new 1 _pNums2;
+
+put 1 -> _pNums1 + 0;
+put 3 -> _pNums1 + 1;
+put 2 -> _pNums2 + 0;
+
+push _pNums1;
+push _pNums2;
+sub FindMedianSortedArrays;
+pull _Median2;
+
+"expected (2.0 << 1) = 4
+print _Median2;
+
+"expected 2.0 = 2
+print _Median2 >> 1;
+
+
+free _pNums1;
+free _pNums2;
+
+asm 'brk';
+
+
+
+"(1::Chunk, 2::Chunk) => (Median2::Int)
+"Median2 is the median times 2 to avoid floats
+lab FindMedianSortedArrays;
+    sub Stack::Swap; pull _pNums2;
+    sub Stack::Swap; pull _pNums1;
+    
+    push _pNums1; sub Chunk::Len; pull _size1;
+    push _pNums2; sub Chunk::Len; pull _size2;
+    
+    put _pEnd1 = _pNums1 + _size1 - 1;
+    put _pEnd2 = _pNums2 + _size2 - 1;
+    
+    
+    put _size = _size1 + _size2;
+    put _pivot = _size >> 1;
+    
+    put _last = 0;
+    put _this = 0;
+    
+    put _i = 0;
+    lab FindMedianSortedArrays::Loop;
+        put _last = _this;
+        
+        jump FindMedianSortedArrays::Pull2 ~ _pNums1 > _pEnd1;
+        jump FindMedianSortedArrays::Pull1 ~ _pNums2 > _pEnd2;
+        
+        put _num1 <- _pNums1;
+        put _num2 <- _pNums2;
+        
+        jump FindMedianSortedArrays::Pull1 ~ _num1 < _num2;
+        jump FindMedianSortedArrays::Pull2;
+        
+        lab FindMedianSortedArrays::PullReturn;
+    
+    
+        put _i = _i + 1;
+    jump FindMedianSortedArrays::Loop ~ _i < (_pivot + 1);
+    
+
+    push _this << 1;
+    push _this + _last;
+    sub Stack::Swap ~ _size & 1 == 0;
+    pull __;
+
+    sub Stack::Swap;
+    return;
+
+
+    lab FindMedianSortedArrays::Pull1;
+        put _this <- _pNums1;
+        put _pNums1 = _pNums1 + 1;
+        jump FindMedianSortedArrays::PullReturn;
+        
+    lab FindMedianSortedArrays::Pull2;
+        put _this <- _pNums2;
+        put _pNums2 = _pNums2 + 1;
+        jump FindMedianSortedArrays::PullReturn;
+    
