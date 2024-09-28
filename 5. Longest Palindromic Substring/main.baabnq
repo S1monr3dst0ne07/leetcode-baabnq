@@ -1,0 +1,80 @@
+
+use 'libs/string.baabnq';
+use 'libs/no.baabnq';
+
+
+static 'dtgrtoxuybwyfskikukcqlvprfipgaygawcqnfhpxoifwgpnzjfdnhpgmsoqzlpsaxmeswlhzdxoxobxysgmpkhcylvqlzenzhzhnakctrliyyngrquiuvhpcrnccapuuwrrdufwwungaevzkvwbkcietiqsxpvaaowrteqgkvovcoqumgrlsxvouaqzwaylehybqchsgpzbkfugujrostopwhtgrnrggocprnxwsecmvofawkkpjvcchtxixjtrnngrzqpiwywmnbdnjwqpmnifdiwzpmabosrmzhgdwgcgidmubywsnshcgcrawjvfiuxzyzxsbpfhzpfkjqcpfyynlpshzqectcnltfimkukopjzzmlfkwlgbzftsddnxrjootpdhjehaafudkkffmcnimnfzzjjlggzvqozcumjyazchjkspdlmifvsciqzgcbehqvrwjkusapzzxyiwxlcwpzvdsyqcfnguoidiiekwcjdvbxjvgwgcjcmjwbizhhcgirebhsplioytrgjqwrpwdciaeizxssedsylptffwhnedriqozvfcnsmxmdxdtflwjvrvmyausnzlrgcchmyrgvazjqmvttabnhffoe' _sSuper;
+
+push _sSuper;
+sub LongestPalindrome;
+pull _sSub;
+
+"expected 'grnrg'
+push _sSub;
+sub String::Print;
+
+
+asm 'brk';
+
+
+"(Super::String) => (Sub::String)
+lab LongestPalindrome;
+    sub Stack::Swap;
+    pull _sSuper;
+    
+    push _sSuper;
+    sub String::StrLen;
+    pull _superLen;
+
+    put _bestStart = 0;
+    put _bestEnd   = 0;
+    
+    put _i = 0;
+    lab LongestPalindrome::Loop;
+        push _i;
+        push _i;
+        sub CheckAndUpdateBestPaliSubPyPosHypth;
+        push _i;
+        push _i + 1;
+        sub CheckAndUpdateBestPaliSubPyPosHypth;
+        
+        put _i = _i + 1;
+    jump LongestPalindrome::Loop ~ _i < _superLen;
+        
+    put 0 -> _sSuper + _bestEnd + 1;
+    
+    push _sSuper + _bestStart;
+    sub Stack::Swap;
+    return;
+    
+    
+    lab CheckAndUpdateBestPaliSubPyPosHypth;
+        sub Stack::Swap; pull _high;
+        sub Stack::Swap; pull _low;
+        
+        lab CheckAndUpdateBestPaliSubPyPosHypth::Loop;
+            put _charLow  <- _sSuper + _low;
+            put _charHigh <- _sSuper + _high; 
+            jump CheckAndUpdateBestPaliSubPyPosHypth::Done ~ _low == 0 - 1;
+            jump CheckAndUpdateBestPaliSubPyPosHypth::Done ~ _charLow != _charHigh;
+
+            put _low  = _low  - 1;
+            put _high = _high + 1;            
+        
+            jump CheckAndUpdateBestPaliSubPyPosHypth::Loop;
+        lab CheckAndUpdateBestPaliSubPyPosHypth::Done;
+        
+        put _start = _low  + 1;
+        put _end   = _high - 1;
+
+        sub No::Return ~ _start > _end; "prevent overflow
+        sub No::Return ~ (_bestEnd - _bestStart + 1) > (_end - _start);
+
+        put _bestStart = _start;
+        put _bestEnd   = _end;
+        
+        return;
+        
+        
+        
+    
