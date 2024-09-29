@@ -1,0 +1,99 @@
+
+use 'libs/stack.baabnq';
+use 'libs/chunk.baabnq';
+use 'libs/string.baabnq';
+use 'libs/math.baabnq';
+
+
+
+"(In::String, NumRows::Int) => (Out::String)
+lab convert;
+    sub Stack::Swap; pull _numRows;
+    sub Stack::Swap; pull _pIn;
+
+    jump convert::skipNullReturn ~ _pIn != 0;
+        new 1 _pOut;
+        put 0 -> _pOut;
+        jump convert::exit;
+    lab convert::skipNullReturn;
+  
+    jump convert::skipRows1 ~ _numRows > 1;
+        push _pIn;
+        sub Chunk::Copy;
+        pull _pOut;
+        jump convert::exit;
+    lab convert::skipRows1;
+
+    
+    push _pIn;
+    sub String::StrLen;
+    pull _len;
+
+    new (_len + 1) _pOut;
+    put _pIter = _pOut;
+
+    put _intervalLen = (_numRows - 1) << 1;
+    push _len;
+    push _intervalLen;
+    sub Math::Div;
+    push 1;
+    sub Math::Add;
+    pull _intervalCount;
+
+    put _climber = 0;
+    put _faller  = _intervalLen;
+
+    lab convert::loop;
+        jump convert::loop::done ~ _climber > _faller;
+        
+        put _i = 0;
+        lab convert::loop::loop;
+            push _i;
+            push _intervalLen;
+            sub Math::Mul;
+            pull _offset;
+
+            push _climber;
+            sub appendBoundsCheckWithOffset;
+
+            jump convert::loop::loop::skipSecondAppend ~ _climber == 0;
+            jump convert::loop::loop::skipSecondAppend ~ _climber == _faller;
+            
+            push _faller;
+            sub appendBoundsCheckWithOffset;
+
+            lab convert::loop::loop::skipSecondAppend;
+
+            put _i = _i + 1;
+          jump convert::loop::loop ~ _i < _intervalCount;
+
+          put _climber = _climber + 1;
+          put _faller  = _faller  + 1;
+
+        jump convert::loop;
+    lab convert::loop::done;
+
+
+
+    lab convert::exit;
+    push _pOut;
+    sub Stack::Swap;
+    return;
+
+    "(Index::Int)
+    lab appendBoundsCheckWithOffset;
+        sub Stack::Swap;
+        pull _index;
+
+        put _index = _index + _offset;
+
+        sub No::Return ~ _index  > _len;
+        sub No::Return ~ _index == _len;
+
+        put _char <- _pIn + _index;
+        put _char -> _pIter;
+        put _pIter = _pIter + 1;
+
+        return;
+
+
