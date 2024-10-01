@@ -6,8 +6,31 @@ use 'libs/math.baabnq';
 
 
 
+
+static 'PAYPALISHIRING' _sIn;
+
+push _sIn;
+push 3;
+sub Convert;
+pull _sActual;
+
+static 'Actual:   ' __;
+push __;         sub String::Print;
+push _sActual;   sub String::Print;
+putchr 10;
+
+static 'Expected: PAHNAPLSIIGYIR' __;
+push __; sub String::Print;
+putchr 10;
+
+
+asm 'brk';
+
+
+
+
 "(In::String, NumRows::Int) => (Out::String)
-lab convert;
+lab Convert;
     sub Stack::Swap; pull _numRows;
     sub Stack::Swap; pull _pIn;
 
@@ -68,7 +91,7 @@ lab convert;
           jump convert::loop::loop ~ _i < _intervalCount;
 
           put _climber = _climber + 1;
-          put _faller  = _faller  + 1;
+          put _faller  = _faller  - 1;
 
         jump convert::loop;
     lab convert::loop::done;
