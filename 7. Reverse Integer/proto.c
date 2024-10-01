@@ -1,6 +1,10 @@
 #define SIGN_BIT ((unsigned)1 << 31)
 #define INT_LIMIT (SIGN_BIT-1)
 
+//accumulator limit
+const int accumLimit = (INT_LIMIT / 10);
+
+
 int reverse(int x)
 {
     //this is a edge case because -SIGN_BIT = _SIGN_BIT
@@ -12,8 +16,8 @@ int reverse(int x)
     int out = 0;
     while (in)
     {
-        if (out > (INT_LIMIT / 10)) return 0;
-        out = out * 10 + (in % 10);
+        if (out > accumLimit) return 0;
+        out = (out * 10) + (in % 10);
         in /= 10;
     }
 
