@@ -1,46 +1,64 @@
 
-
-int cache[21][21] = { -1 };
-
-bool performMatch(char*s, char* p);
-
-bool cacheMatch(char* s, char* p)
+struct regex
 {
-    if (*s == '\0' && *p == '\0') return true;
-    if (*p == '\0') return false;
+    char c;    //NULL to match any character
+    bool star; //zero or more
 
-    if (p[1] == '*')
-    {
-        while (*s != '\0' && (*p == *s || *p == '.'))
+    struct regex* next;
+};
+
+struct regex* alloc()
+{
+    struct regex* r = malloc(sizeof(struct regex));
+    memset(r, 0x0, sizeof(struct regex));
+    return r;
+}
+
+
+struct regex* parse(char* p)
+{
+    struct regex* hook = alloc();
+    struct regex* this = hook;
+
+    for (; *p; p++)
+        if (*p == '*') this->star = true;
+        else
         {
-            if (performMatch(s, p+2)) return true;
-            s++;
+            this->next = alloc();
+            this = this->next;
+
+            this->c = *p != '.' ? *p : '\0';
         }
-        return performMatch(s, p+2);
+
+    struct regex* start = hook->next;
+    free(hook);
+    return start;
+}
+
+
+
+bool match(struct regex* r, char* s)
+{
+    if (!r) return !*s;
+    if (!*s) return r->star && match(r->next, s);
+
+    bool M = (!r->c || r->c == *s);
+
+    switch((r->star << 1) + M)
+    {
+        case 0b00: return false;
+        case 0b01: return match(r->next, s+1);
+        case 0b10: return match(r->next, s);
+        case 0b11:;
+            return match(r, s+1) || match(r->next, s);
+
     }
-    else if (*p == '.')
-        return *s != '\0' && performMatch(s+1, p+1);
 
-    else
-        return (*p == *s) && performMatch(s+1, p+1);
-
-}
-
-bool performMatch(char*s, char* p)
-{
-    int sLen = strlen(s);
-    int pLen = strlen(p);
-
-    if (cache[sLen][pLen] == -1)
-        return (cache[sLen][pLen] = cacheMatch(s, p));
-    else
-        return cache[sLen][pLen];
-
+    return false; //never reached
 }
 
 
-bool isMatch(char* s, char* p)
+bool isMatch(char* s, char* p) 
 {
-    memset(cache, -1, sizeof(cache));
-    return performMatch(s, p);
+    return match(parse(p), s);
 }
