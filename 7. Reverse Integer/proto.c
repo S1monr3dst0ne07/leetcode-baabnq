@@ -5,7 +5,7 @@
 #define INT_LIMIT (SIGN_BIT-1)
 
 //accumulator limit
-const int accumLimit = (INT_LIMIT / 10);
+const int ACCUM_LIMIT = (INT_LIMIT / 10);
 
 
 int reverse(int x)
@@ -19,7 +19,7 @@ int reverse(int x)
     int out = 0;
     while (in)
     {
-        if (out > accumLimit) return 0;
+        if (out > ACCUM_LIMIT) return 0;
         out = (out * 10) + (in % 10);
         in /= 10;
     }
