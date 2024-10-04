@@ -1,4 +1,4 @@
 -add routine signature to subroutine in example 5 (i think; if it's not there check all the other ones)
 -fix namespacing everywhere please *does puppy eyes*
 -look over proto.c for problem 7 - 10, very ruffy right now
--comparison of actual vs expected output
+-fix proto dependencies

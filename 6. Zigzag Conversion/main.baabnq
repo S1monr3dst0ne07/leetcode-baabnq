@@ -12,16 +12,9 @@ static 'PAYPALISHIRING' _sIn;
 push _sIn;
 push 3;
 sub Convert;
-pull _sActual;
 
-static 'Actual:   ' __;
-push __;         sub String::Print;
-push _sActual;   sub String::Print;
-putchr 10;
-
-static 'Expected: PAHNAPLSIIGYIR' __;
-push __; sub String::Print;
-putchr 10;
+"expected 'PAHNAPLSIIGYIR'
+sub String::Print;
 
 
 asm 'brk';
