@@ -1,17 +1,36 @@
-int myAtoi(char* s)
-{
-    while (*s == ' ') s++;
-    if (*s == '\0') return 0;
+#include <stdbool.h>
+#include <ctype.h>
+#include <limits.h>
 
-    bool sign = *s == '-';
-    if (*s == '+' || *s == '-') s++;
-    if (*s == '\0') return 0;
+#define guard if (*in == '\0') return 0
+
+const int ACCUM_LIMIT = (INT_MAX / 10); 
+
+int myAtoi(char* in)
+{
+    //skip leading whilespace
+    while (*in == ' ') in++;
+    guard;
+
+    //grab sign and skip
+    bool sign = *in == '-';
+    if (*in == '+' || *in == '-') in++;
+    guard;
 
     int out = 0;
-    while (isdigit(*s))
-        if (out > INT_MAX/10) return sign ? -INT_MAX-1 : INT_MAX; 
-        else if (out * 10 > INT_MAX - (*s - '0'))  return sign ? -INT_MAX-1 : INT_MAX;
-        else out = out * 10 + (*s++ - '0');
+    for (; isdigit(*in); in++)
+    {
+        int digit = (*in - '0');
+
+        if (out > ACCUM_LIMIT) goto overflow;
+        int out10 = out * 10;
+
+        if (out10 > INT_MAX - digit) goto overflow;
+        out = out10 + digit;
+    }
 
     return sign ? -out : out;
+
+    overflow:
+        return sign ? -INT_MAX-1 : INT_MAX;
 }
