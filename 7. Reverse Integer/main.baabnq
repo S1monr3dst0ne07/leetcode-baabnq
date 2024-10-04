@@ -1,0 +1,78 @@
+
+use 'libs/twoc.baabnq';
+use 'libs/math.baabnq';
+use 'libs/fast.baabnq';
+use 'libs/no.baabnq';
+
+"this implementation is limited to 16-bit because i'm lazy
+
+put _SIGN_BIT = 1 << 15;
+put _INT_LIMIT = _SIGN_BIT - 1;
+
+"accumulator limit
+push _INT_LIMIT;
+push 10;
+sub Math::Div;
+pull _ACCUM_LIMIT;
+
+
+put _in = 123;
+push _in;
+sub Reverse;
+pull _out;
+
+"expected 321
+print _out;
+
+
+asm 'brk';
+
+
+"(In::Comp) => (Out::Comp)
+lab Reverse;
+    sub Stack::Swap;
+    pull _in;
+
+    "this is an edge case because 0 - _SIGN_BIT = _SIGN_BIT
+    push 0;
+    sub No::Return ~ _in == _SIGN_BIT;
+    pull __;
+        
+    push _in;
+    sub Twoc::Get;
+    pull _in;
+    pull _sign;
+    
+    put _out = 0;
+    lab Reverse::Loop;
+        jump Reverse::Done ~ _in == 0;
+        jump Reverse::Overflow ~ _out > _ACCUM_LIMIT;
+                        
+        "extract digit
+        push _in;
+        sub Fast::DivMod10;
+        pull _in;
+        
+        "inject digit
+        push _out;
+        sub Fast::Mul10;
+        sub Math::Add;
+        pull _out;
+        
+        jump Reverse::Loop;
+    lab Reverse::Done;
+        
+    push _out;
+    push _sign;
+    sub Twoc::Set;
+    sub Stack::Swap;
+    return;
+    
+    lab Reverse::Overflow;
+        push 0;
+        sub Stack::Swap;
+        return;
+
+
+
+
