@@ -1,0 +1,62 @@
+
+use 'libs/math.baabnq';
+use 'libs/fast.baabnq';
+
+put _SIGN_BIT = 1 << 15;
+put _INT_LIMIT = _SIGN_BIT - 1;
+
+"accumulator limit
+push _INT_LIMIT;
+push 10;
+sub Math::Div;
+pull _ACCUM_LIMIT;
+
+
+push 12321;
+sub IsPalindrome;
+pull __;
+"expected 1
+print __;
+
+
+push 1234;
+sub IsPalindrome;
+pull __;
+"expected 0
+print __;
+
+
+asm 'brk';
+
+
+"(X::Int) => (Is::Bool)
+lab IsPalindrome;
+    sub Stack::Swap;
+    pull _x;
+    
+    put _in = _x;
+    put _out = 0;
+    lab IsPalindrome::Loop;
+        jump IsPalindrome::Done ~ _in == 0;
+        jump IsPalindrome::Overflow ~ _out > _ACCUM_LIMIT;
+        
+        push _in;
+        sub Fast::DivMod10;
+        pull _in;
+        
+        push _out;
+        sub Fast::Mul10;
+        sub Math::Add;
+        pull _out;
+        jump IsPalindrome::Loop;
+    lab IsPalindrome::Done;
+    
+    jump IsPalindrome::True  ~ _x == _out; push 0; lab IsPalindrome::True;
+    jump IsPalindrome::False ~ _x != _out; push 1; lab IsPalindrome::False;
+    
+    sub Stack::Swap;
+    return;
+    
+    lab IsPalindrome::Overflow;
+        put _out = 0;
+    jump IsPalindrome::Done;
