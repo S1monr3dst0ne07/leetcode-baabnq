@@ -8,7 +8,7 @@ const int ACCUM_LIMIT = (INT_MAX / 10);
 
 int myAtoi(char* in)
 {
-    //skip leading whilespace
+    //skip leading whitespace
     while (*in == ' ') in++;
     guard;
 

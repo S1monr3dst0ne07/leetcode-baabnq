@@ -1,0 +1,106 @@
+
+use 'libs/twoc.baabnq';
+use 'libs/math.baabnq';
+use 'libs/fast.baabnq';
+use 'libs/no.baabnq';
+
+
+put _SIGN_BIT = 1 << 15;
+put _INT_LIMIT = _SIGN_BIT - 1;
+
+"accumulator limit
+push _INT_LIMIT;
+push 10;
+sub Math::Div;
+pull _ACCUM_LIMIT;
+
+
+static ' +-09' _sCONSTS;
+put _WHITESPACE <- _sCONSTS + 0;
+put _PLUS       <- _sCONSTS + 1;
+put _MINUS      <- _sCONSTS + 2;
+put _ZERO       <- _sCONSTS + 3;
+put _NINE       <- _sCONSTS + 4;
+
+
+"slightly modified from leetcode testcase to make it more interesting
+static '   -042abc' _sIn;
+
+push _sIn;
+sub MyAtoi;
+
+"expected -42
+sub Twoc::Print;
+
+asm 'brk';
+
+
+"(In::String) => (Out::Comp)
+lab MyAtoi;
+    sub Stack::Swap;
+    pull _sIn;
+    
+    "skip leading whitespace
+    lab MyAtoi::WhitespaceLoop;
+        put __ <- _sIn;
+        jump MyAtoi::WhitespaceDone ~ __ != _WHITESPACE;
+        put _sIn = _sIn + 1;
+        jump MyAtoi::WhitespaceLoop;
+    lab MyAtoi::WhitespaceDone;
+    
+    sub MyAtoi::Guard;
+    
+    
+    "grab sign and skip
+    put __ <- _sIn;
+    jump MyAtoi::SkipPlus  ~ __ != _PLUS;  put _sIn = _sIn + 1; put _sign = 0; lab MyAtoi::SkipPlus;
+    jump MyAtoi::SkipMinus ~ __ != _MINUS; put _sIn = _sIn + 1; put _sign = 1; lab MyAtoi::SkipMinus;
+  
+    sub MyAtoi::Guard;
+    
+    
+    put _out = 0;
+    lab MyAtoi::Loop;
+        put __ <- _sIn;
+        jump MyAtoi::Done ~ __ < _ZERO;
+        jump MyAtoi::Done ~ __ > _NINE;
+        
+        put _digit = __ - _ZERO;
+        jump MyAtoi::Overflow ~ _out > _ACCUM_LIMIT;
+        
+        push _out;
+        sub Fast::Mul10;
+        pull _out10;
+        
+        jump MyAtoi::Overflow ~ _out10 > _INT_LIMIT - _digit;
+        put _out = _out10 + _digit;
+        
+        put _sIn = _sIn + 1;
+        jump MyAtoi::Loop;
+    lab MyAtoi::Done;
+
+    push _out;
+    push _sign;
+    sub Twoc::Set;
+    sub Stack::Swap;
+    return;
+    
+    
+    lab MyAtoi::Overflow;
+        push _INT_LIMIT;
+        push _sign;
+        sub Twoc::Set;
+        sub Stack::Swap;
+        return;
+                
+    lab MyAtoi::Guard;
+        put __ <- _sIn;
+        sub No::Return ~ __ != 0;
+        
+        "remove return address of the guard routine
+        pull __;
+        
+        "now return as the main routine
+        return;
+        
+        
