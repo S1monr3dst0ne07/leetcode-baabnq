@@ -1,40 +1,43 @@
+#include <stdlib.h>
+#include <stdbool.h>
 
 struct regex
 {
-    char c;    //NULL to match any character
-    bool star; //zero or more
+    char letter;
+    bool star;      //zero or more
+    bool dot;       //match any character
 
     struct regex* next;
 };
 
 struct regex* alloc()
 {
-    struct regex* r = malloc(sizeof(struct regex));
-    memset(r, 0x0, sizeof(struct regex));
-    return r;
+    return calloc(1, sizeof(struct regex));
 }
 
 
 struct regex* parse(char* p)
 {
-    struct regex* hook = alloc();
-    struct regex* this = hook;
+    struct regex hook; //hook for the chain to hang on
+    struct regex* this = &hook;
 
     for (; *p; p++)
-        if (*p == '*') this->star = true;
+    {
+        char c = *p;
+
+        if (c == '*') this->star = true;
         else
         {
             this->next = alloc();
             this = this->next;
 
-            this->c = *p != '.' ? *p : '\0';
+            this->letter = *p;
+            this->dot    = *p == '.';
         }
+    }
 
-    struct regex* start = hook->next;
-    free(hook);
-    return start;
+    return hook.next;
 }
-
 
 
 bool match(struct regex* r, char* s)
@@ -42,9 +45,9 @@ bool match(struct regex* r, char* s)
     if (!r) return !*s;
     if (!*s) return r->star && match(r->next, s);
 
-    bool M = (!r->c || r->c == *s);
+    bool matching = (r->dot || r->letter == *s);
 
-    switch((r->star << 1) + M)
+    switch((r->star << 1) + matching)
     {
         case 0b00: return false;
         case 0b01: return match(r->next, s+1);
