@@ -1,3 +1,2 @@
--fix problem 1 not having a routine
 -add routine signature to subroutine in example 5 (i think; if it's not there check all the other ones)
 -fix namespacing everywhere please *does puppy eyes*   
