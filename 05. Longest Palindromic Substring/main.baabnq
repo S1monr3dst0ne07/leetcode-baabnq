@@ -47,7 +47,10 @@ lab LongestPalindrome;
     sub Stack::Swap;
     return;
     
-    
+    "(Low::Int, High::Int)
+    "given a substring delimited by low and high, expands the substring while it's a palindrome.
+    "one the substring is expanded as much as possible, checks if it's biggest than the current best,
+    "and if so, updates the current best.
     lab CheckAndUpdateBestPaliSubPyPosHypth;
         sub Stack::Swap; pull _high;
         sub Stack::Swap; pull _low;
