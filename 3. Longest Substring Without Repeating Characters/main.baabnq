@@ -9,10 +9,8 @@ push _sTest;
 sub LengthOfLongestSubstring;
 pull _len;
 
-"expected to be 3
+"expected 3
 print _len;
-
-
 
 
 asm 'brk';

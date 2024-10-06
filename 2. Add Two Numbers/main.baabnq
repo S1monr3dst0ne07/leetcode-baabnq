@@ -10,13 +10,6 @@ put _ListNode::VAL = 0;
 put _ListNode::NEXT = 1;
 
 
-"expected output is:
-"7
-"0
-"8
-
-
-
 "construct list 1
 push 2;
 sub CreateNode;
@@ -57,11 +50,9 @@ pull _sum;
 
 
 "output sum
-put __ <- _sum + _ListNode::VAL; print __; put _sum <- _sum + _ListNode::NEXT;
-put __ <- _sum + _ListNode::VAL; print __; put _sum <- _sum + _ListNode::NEXT;
-put __ <- _sum + _ListNode::VAL; print __; put _sum <- _sum + _ListNode::NEXT;
-
-
+put __ <- _sum + _ListNode::VAL; print __; put _sum <- _sum + _ListNode::NEXT; "expected 7
+put __ <- _sum + _ListNode::VAL; print __; put _sum <- _sum + _ListNode::NEXT; "expected 0
+put __ <- _sum + _ListNode::VAL; print __; put _sum <- _sum + _ListNode::NEXT; "expected 8
 
 
 asm 'brk;';
