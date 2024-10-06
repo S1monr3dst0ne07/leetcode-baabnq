@@ -1,0 +1,305 @@
+
+use 'libs/stack.baabnq';
+use 'libs/no.baabnq';
+
+
+"regex structure
+" _p+0 -> letter :: Char
+" _p+1 -> star   :: Bool
+" _p+2 -> dot    :: Bool
+" _p+3 -> next   :: Ptr
+
+put _REGEX::LETTER = 0;
+put _REGEX::STAR   = 1;
+put _REGEX::DOT    = 2;
+put _REGEX::NEXT   = 3;
+
+static '*.' _sCONSTS;
+put _STAR <- _sCONSTS + 0;
+put _DOT <- _sCONSTS + 1;
+
+
+
+"this is interesting because it has to do a lot of backtracking
+static 'a*.*aabb......c*' _sPattern;
+static 'aaaaabbfoobarccccc' _sString;
+
+push _sString;
+push _sPattern;
+sub IsMatch;
+pull _result1;
+
+"sanity check for the upper one
+static 'a*.*aabb......c*' _sPattern;
+static 'aaaaabbfoobarccccc lol' _sString;
+
+push _sString;
+push _sPattern;
+sub IsMatch;
+pull _result2;
+
+putchr 10;
+putchr 10;
+putchr 10;
+
+"=== results ===
+
+"expected 1
+print _result1;
+
+"expected 0
+print _result2;
+
+
+asm 'brk';
+
+
+
+
+"=> (::Regex)
+"allocates a regex structure
+lab Alloc;
+    new 4 _pRegex;
+    
+    put 0 -> _pRegex + _REGEX::LETTER;
+    put 0 -> _pRegex + _REGEX::STAR;
+    put 0 -> _pRegex + _REGEX::DOT;
+    put 0 -> _pRegex + _REGEX::NEXT;
+
+    push _pRegex;
+    sub Stack::Swap;
+    return;
+    
+"(Pattern::String) => (Out::Regex)
+lab Parse;
+    sub Stack::Swap;
+    pull _sPattern;
+    
+    "hook for the chain to hang on
+    sub Alloc;
+    pull _pHook;
+    
+    put _pThis = _pHook;
+    
+    lab Parse::Loop;
+        put _char <- _sPattern;
+        jump Parse::Done ~  _char == 0;   
+    
+        jump Parse::Star ~ _char != _STAR; put 1 -> _pThis + _REGEX::STAR; lab Parse::Star;
+        jump Parse::NotStar   ~ _char == _STAR;
+            "allocate next link
+            sub Alloc;
+            pull _pNext;
+            put _pNext -> _pThis + _REGEX::NEXT;
+            put _pThis = _pNext;
+            
+            "content
+            put _char -> _pThis + _REGEX::LETTER;
+            jump Parse::NotStar::Dot ~ _char != _DOT;
+                put 1 -> _pThis + _REGEX::DOT;
+            lab Parse::NotStar::Dot;
+
+        lab Parse::NotStar;
+    
+    
+        put _sPattern = _sPattern + 1;
+            
+        jump Parse::Loop;
+    lab Parse::Done;
+    
+    "unhook chain    
+    put _pOut <- _pHook + _REGEX::NEXT;
+    free _pHook;
+    push _pOut;
+    sub Stack::Swap;
+    return;
+
+
+"(::Regex) => IO
+"debugging 
+"le'i, f.pumikevcimu nu i.negnu'u (yes, at the end of the day, i'm only human)
+lab PrintRegex;
+    sub Stack::Swap;
+    pull _p;
+    
+    sub No::Return ~ _p == 0;
+    
+    static '=== (letter, star, dot, next) ===\n' _sHead;
+    push _sHead;
+    sub String::Print;
+    
+    put __ <- _p + _REGEX::LETTER; putchr __; putchr 10;
+    put __ <- _p + _REGEX::STAR;   print __;
+    put __ <- _p + _REGEX::DOT;    print __;
+    put __ <- _p + _REGEX::NEXT;   print __;
+    
+    push __;
+    sub PrintRegex;
+    return;
+
+
+"(R::Regex, S::String) => (Matching::Bool)
+lab Match;
+    sub Stack::Swap;
+    pull _s;
+    sub Stack::Swap;
+    pull _pRegex;
+    
+    push _s;
+    sub String::Print;
+    putchr 10;
+    
+    put _char <- _s;
+    put _pNext <- _pRegex + _REGEX::NEXT;        
+    
+    "base cases
+    jump Match::RegexEmpty ~ _pRegex != 0;
+        jump Match::RegexEmpty::StringFull  ~ _char == 0; push 0; lab Match::RegexEmpty::StringFull ;
+        jump Match::RegexEmpty::StringEmpty ~ _char != 0; push 1; lab Match::RegexEmpty::StringEmpty;
+        sub Stack::Swap;
+        return;
+    lab Match::RegexEmpty;
+
+    jump Match::StringEmpty ~ _char != 0;
+        push _pNext;
+        push _s;
+        sub Match::Recurse;
+        pull __;
+        put _start <- _pRegex + _REGEX::STAR;
+        push __ & _start;
+        sub Stack::Swap;
+        return;
+    lab Match::StringEmpty;
+
+    "check letter matching
+    put _letter <- _pRegex + _REGEX::LETTER;
+    put _dot    <- _pRegex + _REGEX::DOT;
+    jump Match::Matching    ~ _char != _letter; put _matching = 1;    lab Match::Matching;
+    jump Match::NotMatching ~ _char == _letter; put _matching = _dot; lab Match::NotMatching;    
+
+    "switch
+    put _star <- _pRegex + _REGEX::STAR;    
+    jump Match::NoStarNoMatch ~ (_star ^ 0) | (_matching ^ 0) == 0;
+    jump Match::NoStarIsMatch ~ (_star ^ 0) | (_matching ^ 1) == 0;
+    jump Match::IsStarNoMatch ~ (_star ^ 1) | (_matching ^ 0) == 0;
+    jump Match::IsStarIsMatch ~ (_star ^ 1) | (_matching ^ 1) == 0;
+
+    "should never be reached
+    static 'OHHH NU!!!' _sFATAL;
+    push _sFATAL;
+    sub String::Print;
+    asm 'brk';
+    
+    lab Match::NoStarNoMatch;
+        push 0;
+        sub Stack::Swap;
+        return;
+        
+    lab Match::NoStarIsMatch;
+        push _pNext;
+        push _s + 1;
+        sub Match::Recurse;
+        sub Stack::Swap;
+        return;
+        
+    lab Match::IsStarNoMatch;
+        push _pNext;
+        push _s;
+        sub Match::Recurse;
+        sub Stack::Swap;
+        return;
+
+    lab Match::IsStarIsMatch;
+        push _pRegex;
+        push _s + 1;
+        sub Match::Recurse;
+        pull __;
+        jump Match::DoStarDoMatch::True ~ __ == 1;
+        
+        push _pNext;
+        push _s;
+        sub Match::Recurse;
+        sub Stack::Swap;
+        return;
+        
+        lab Match::DoStarDoMatch::True;
+        push 1;
+        sub Stack::Swap;
+        return;
+    
+
+
+
+
+    "insulator for recursive call
+    "explanation:
+    "    calling recursively in baabnq requires total variable delocalization,
+    "    because all frames will be using the same actual variables,
+    "    deeper calls would override the locals of more shallow calls
+    "    thus an insulator is to be needed
+    lab Match::Recurse;
+        "deconstruct in-frame
+        sub Stack::Swap; pull _recurseInParam2;
+        sub Stack::Swap; pull _recurseInParam1;
+        
+        "save all locals
+        push _pRegex;
+        push _s;
+        push _pNext;
+        push _char;
+        
+        "reconstruct in-frame
+        push _recurseInParam1;
+        push _recurseInParam2;
+        
+        "perform actual recursive call
+        sub Match;
+        
+        "deconstruct out-frame        
+        pull _recurseOutParam;
+        
+        "restore all locals
+        pull _char;
+        pull _pNext;
+        pull _s;
+        pull _pRegex;
+        
+        "reconstruct out-frame;
+        push _recurseOutParam; sub Stack::Swap;
+        
+        "done
+        return;
+        
+
+
+
+    
+"(String::String, Regex::String) => (Matching::Bool)
+lab IsMatch;
+    sub Stack::Swap;
+    pull _sRegex;
+    
+    push _sRegex;
+    sub Parse;
+    pull _pRegex;
+ 
+       
+    push _pRegex;
+    sub PrintRegex;
+
+    sub Stack::Swap;
+    pull _sString;
+    
+    push _pRegex;
+    push _sString;
+    sub Match;
+    
+    "this is gonna leak memory,
+    "figuring out how is left as an exercise to the reader lol
+    
+    sub Stack::Swap;
+    return;
+
+
+
+
