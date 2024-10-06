@@ -264,7 +264,7 @@ lab Match;
         pull _s;
         pull _pRegex;
         
-        "reconstruct out-frame;
+        "reconstruct out-frame
         push _recurseOutParam; sub Stack::Swap;
         
         "done
