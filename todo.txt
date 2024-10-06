@@ -1,1 +1,4 @@
 -fix namespacing everywhere please *does puppy eyes*    
+
+-update README
+
