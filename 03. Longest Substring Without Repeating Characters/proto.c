@@ -1,4 +1,4 @@
-
+#include <string.h>
 
 
 int max(int x, int y)

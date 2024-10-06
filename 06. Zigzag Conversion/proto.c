@@ -1,3 +1,5 @@
+#include <string.h>
+#include <stdlib.h>
 
 char* convert(char* in, int numRows)
 { 

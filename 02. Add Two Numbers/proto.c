@@ -1,17 +1,24 @@
+#include <stdlib.h>
+
 /**
  * Definition for singly-linked list.
- * struct ListNode {
+ * struct Node {
  *     int val;
- *     struct ListNode *next;
+ *     struct Node *next;
  * };
  */
 
-
-
-struct ListNode* addTwoNumbers(struct ListNode* l1, struct ListNode* l2)
+struct Node
 {
-    struct ListNode hook;
-    struct ListNode* iter = &hook;
+    int val;
+    struct Node* next;
+};
+
+
+struct Node* addTwoNumbers(struct Node* l1, struct Node* l2)
+{
+    struct Node hook;
+    struct Node* iter = &hook;
 
 
     int carry = 0;
@@ -25,7 +32,7 @@ struct ListNode* addTwoNumbers(struct ListNode* l1, struct ListNode* l2)
         int digit = sum % 10;
         carry = sum / 10;
         
-        iter->next = malloc(sizeof(struct ListNode));
+        iter->next = malloc(sizeof(struct Node));
         iter = iter->next;
         
         iter->val = digit;
