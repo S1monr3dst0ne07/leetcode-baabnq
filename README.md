@@ -18,11 +18,10 @@ There's a directory per problem, with each one containing:
 - git
 
 ### Execution
-Assuming Baabnq has been set up in the current work directory.
+Assuming Baabnq has been set up in the current work directory. <br>
 If you don't have Baabnq set up, you can use the [Kit](https://github.com/baabnq/kit) to do so.
 ```
 git clone https://github.com/baabnq/leetcode-examples
 python compi.py -i leetcode-examples/<examples directory>/main.baabnq
 python vm.py -f build.s1
-```
-Python is expected to be an alias for python 3.8.5 and above.
+``` 
